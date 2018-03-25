@@ -13,14 +13,26 @@ print(de)
 #   "https": "http://"+fr,
 # }
 # print(proxies)
-proxies = {"http":"http://115.221.125.162:36085"}
+ip = "113.121.242.225"
+port = "48930"
+proxies = {"https":ip+":"+ port,"http":ip+":"+ port}
 for i in range(5):
     try:
         r = requests.get(URL,proxies = proxies)
         data = r.text
+        print(ip in data)
         print(data)
     except requests.exceptions.ProxyError as e:
-        print(proxies+"这个代理有问题啊")
+        print(proxies,"这个代理有问题啊")
+        print(e)
+    except requests.exceptions.ConnectTimeout as e:
+        print(proxies,"请求超时")
+        print(e)
+    except requests.exceptions.ConnectionError as e:
+        print("连接错误",e)
     else:
+        print("其他问题")
         continue
+    finally:
+        print("---------------------")
 
