@@ -28,3 +28,15 @@ class BloomFilter:
         r = random.Random(string)
         lv1random = [r.random() for x in range(self.k)]
         return [int(random.Random(x).random()*self.m) for x in lv1random]
+if __name__ == '__main__':
+    c = BloomFilter()
+    f = open("guangzhou.txt")
+    g = open("we.txt")
+    for i in f:
+        c.set(i.strip())
+
+    for i in g:
+        print(c.test(i.strip()))
+    # c.set("BMW")
+    # print(c.test("AMG"))
+    # print(c.calcMap("BENZ"))
