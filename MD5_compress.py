@@ -9,9 +9,10 @@ def hash_md5(url):
     return md5_url
 
 if __name__ == '__main__':
-    for i in f:
-        print(i)
-        j = hash_md5(i)
-        g.write(j)
-f.close()
-g.close()
+#     for i in f:
+#         print(i)
+#         j = hash_md5(i)
+#         g.write(j)
+# f.close()
+# g.close()
+    print(hash_md5("www.baidu.com"))
