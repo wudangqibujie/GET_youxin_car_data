@@ -1,6 +1,7 @@
 #https://zhuanlan.zhihu.com/p/25845538
 import json
 import re
+import time
 import requests
 from lxml import etree
 def get_chinese_name(en_city):
@@ -13,7 +14,7 @@ def location(city_name):
     r = requests.get(url.format(location=city_name))
     return r.text
 def car_amount(city):
-    url = "https://www.xin.com/{city}/baoma/"
+    url = "https://www.xin.com/{city}/leikesasi/"
     r = requests.get(url.format(city=city))
     html = etree.HTML(r.text)
     if_max = html.xpath('//div[@class="con-page search_page_link"]/a')
@@ -38,8 +39,8 @@ def car_amount(city):
             return 0
 def baidu_api():
     # api_js = '{"lat":' + str(lat) + ',"lng":' + str(lng) +',"count":' + str(c) +'},'
-    f = open("baoma.txt",encoding="utf-8")
-    h = open("baoma_fine_data.txt","w")
+    f = open("leikesasi.txt",encoding="utf-8")
+    h = open("leikesasi_fine_data.txt","w")
     city_amount_dict = eval(f.read())
     # print(city_amount_dict)
     g = open("loaction.txt",encoding="utf-8")
@@ -48,51 +49,49 @@ def baidu_api():
     pattern2 = re.compile(r'"lat":(.*?)},"precis')
     pattern3 = re.compile(r"{'(.*?)': 'sho")
     for ci in g:
-        print(ci)
-        lng_ = re.findall(pattern1,ci)[0]
-        lat_ = re.findall(pattern2,ci)[0]
-        city_name = re.findall(pattern3,ci)[0]
-        lng = float(lng_)
-        lat = float(lat_)
-        c = city_amount_dict[city_name]
-        api_js = '{"lng":' + str(lng) + ',"lat":' + str(lat) +',"count":' + str(c) +'},'+"\n"
-        h.write(api_js)
-        print(api_js)
+        try:
+            print(ci)
+            lng_ = re.findall(pattern1,ci)[0]
+            lat_ = re.findall(pattern2,ci)[0]
+            city_name = re.findall(pattern3,ci)[0]
+            lng = float(lng_)
+            lat = float(lat_)
+            c = city_amount_dict[city_name]
+            api_js = '{"lng":' + str(lng) + ',"lat":' + str(lat) +',"count":' + str(c) +'},'+"\n"
+            h.write(api_js)
+            print(api_js)
+        except:
+            continue
 
     print(city_amount_dict)
 
-
-
-
-
-
+def create_js():
+    end_dict = {}
+    g = open("leikesasi.txt", "w", encoding="utf-8")
+    f = open("result.txt", encoding="utf-8")
+    en_chi_dic = eval(f.read())
+    i = 0
+    for key, value in en_chi_dic.items():
+        try:
+            amount_num = car_amount(value)
+            time.sleep(1)
+            end_dict[key] = amount_num
+            print(key)
+            print(amount_num)
+        except:
+            i += 1
+            print(key)
+            continue
+    g.write(str(end_dict))
+    print(i)
+    f.close()
+    g.close()
 
 if __name__ == '__main__':
+    create_js()
     baidu_api()
 
-    # import time
-    # end_dict = {}
-    # g = open("baoma.txt","w",encoding="utf-8")
-    # f = open("result.txt",encoding="utf-8")
-    # en_chi_dic = eval(f.read())
-    # i=0
-    # for key,value in en_chi_dic.items():
-    #     try:
-    #         amount_num = car_amount(value)
-    #         time.sleep(1)
-    #         end_dict[key] = amount_num
-    #         print(key)
-    #         print(amount_num)
-    #     except:
-    #         i += 1
-    #         print(key)
-    #         continue
 
-    #
-    # g.write(str(end_dict))
-    # print(i)
-    # f.close()
-    # g.close()
 
 
 

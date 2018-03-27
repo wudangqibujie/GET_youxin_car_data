@@ -36,7 +36,7 @@ def ip_test(ip_port):
     f_timeout_ip = open("timeout_ip.txt","a")
     f_invalid_ip = open("invalid_ip.txt","a")
     try:
-        r = requests.get(URL,proxies = proxies,timeout = 0.1)
+        r = requests.get(URL,proxies = proxies,timeout = 5)
         res = r.text
         logger.info("测试的返回代码")
         logger.info("正在使用的代理")
