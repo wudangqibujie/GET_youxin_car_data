@@ -1,6 +1,5 @@
 import random
 from bitmap import BitMap
-
 #https://blog.csdn.net/chndata/article/details/49817795
 class BloomFilter:
     def __init__(self, mapsize=160000, max_node_size=10000, random_num=8):
