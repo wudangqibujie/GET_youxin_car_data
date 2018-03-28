@@ -1,6 +1,6 @@
 import requests
 from lxml import etree
-import redis_or
+import DataBase.redis_or
 import time
 import re
 import city_name

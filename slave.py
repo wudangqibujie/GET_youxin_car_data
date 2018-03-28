@@ -1,13 +1,16 @@
 import requests
 from lxml import etree
-import mongo_or
-import master
-import redis_or
+import DataBase.mongo_or
+import Master
+import DataBase.redis_or
 import json
 import time
 class Slave_Spisder():
     def parse_detail_data(self,html):
         data = dict()
+        car_price = html,xpath('//p[@class="cd_m_info_price"]/span[1]/b/text()')
+        data["现价格"] = car_price
+        print(car_price)
         model_name = html.xpath('//div[@class="cd_m_info cd_m_info_zjf"]/div[2]/div[1]/span/text()')[0].strip()
         data["车型名字"] = model_name
         car_mileage = html.xpath('//ul[@class="cd_m_info_desc"]/li[2]/a/text()')[0].strip()
@@ -60,11 +63,11 @@ class Slave_Spisder():
         # return data
         #以下爬取的是车辆的质量检测报告项目
 if __name__ == '__main__':
-    red= redis_or.Redis_Data()
+    red= DataBase.redis_or.Redis_Data()
     s = Slave_Spisder()
     # url = "https://www.xin.com/40d0a41wy9/che59723067.html?channel=a49b117c44837d110753e751863f53"
     f = open("graph_test_data","a",encoding="utf-8")
-    for i in range(600):
+    for i in range(10):
         try:
             url = red.pop_data("shenzhen_youxin")
             r = requests.get("http://"+url)
@@ -72,6 +75,7 @@ if __name__ == '__main__':
             print(url)
             html = etree.HTML(r.text)
             data = s.parse_detail_data(html)
+            print(data)
             f.write(str(data)+"\n")
             print(data)
         except:
