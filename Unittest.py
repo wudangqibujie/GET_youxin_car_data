@@ -11,3 +11,7 @@
 #
 # if __name__ == '__main__':
 #     unittest,main()
+
+
+from UA_Pool import UA_Pool
+print(UA_Pool.user_agent_list)
