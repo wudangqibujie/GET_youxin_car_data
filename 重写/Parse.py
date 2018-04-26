@@ -9,15 +9,16 @@ headers = {"User-Agent":"Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 
 class Parse(object):
     def __init__(self):
         pass
-    def master_parse(self,page_source,q,ad_new):
+    def master_parse(self,page_source,q):
         html = etree.HTML(page_source)
         item_data = html.xpath('//div[@class="_list-con list-con clearfix ab_carlist"]/ul/li')
         next_item = html.xpath('//div[@class="con-page search_page_link"]/a')
         if next_item:
             if "下一页" in next_item[-1].xpath('text()')[0]:
                 next_url = next_item[-1].xpath('@href')
-                logging.info("下一页连接"+next_url)
-                ad_new.sadd("new_master_task",next_url)
+                if next_url:
+                    logging.info("下一页连接"+next_url[0])
+                    # add_task(next_url)
         for i in item_data:
             item = dict()
             item["title"] = i.xpath('@data-title')
@@ -26,7 +27,7 @@ class Parse(object):
             item["year_age"] = i.xpath('div[@class="across"]/div[@class="pad"]/span[1]/text()')
             logging.info(item)
             q.put(item)
-    def slave_master(self,page_source):
+    def slave_parse(self,page_source):
         item = dict()
         html = etree.HTML(page_source)
         item["title"] = html.xpath('//div[@class="cd_m_info_it2"]/div[1]/span/text()')
@@ -51,6 +52,7 @@ class Parse(object):
             if el:
                 error_list = [i.xpath('text()') for i in el]
                 item["common_report"] = [error_num,error_list]
+        print(item)
         return item
 
     def get_you_report(self,refer_link,car_id):
@@ -62,9 +64,15 @@ class Parse(object):
         r = requests.get(url,headers=headers)
         return r.text.encode('latin-1').decode('unicode_escape')
 if __name__ == '__main__':
-    r = requests.get("https://www.xin.com/40d0358dy9/che77280557.html",headers=headers)
-    p = Parse()
-    p.slave_master(r.text)
+    import redis
+    r = redis.Redis(host="localhost",port=6379)
+    urls = [i.decode("utf-8") for i in r.srandmember("youxinnew_master_task",100)]
+    print(urls)
+    for i in urls:
+        r = requests.get("https://www.xin.com/songyuan/fute/",headers=headers)
+        p = Parse()
+        # q = mp.Queue()
+        p.master_parse(r.text,1)
 
 
 
