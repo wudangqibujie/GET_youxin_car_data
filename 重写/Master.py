@@ -5,6 +5,7 @@ import Url_Manager
 import Req
 import logging
 import Parse
+import redis
 logging.basicConfig(level=logging.INFO)
 
 def create_start_urls():
@@ -20,20 +21,38 @@ def data_filter():
 def A(q):
     while True:
         try:
-            it = q.get(timeout = 10)
+            it = q.get()
             print(it)
         except:
             print("获取完毕")
             break
-def B(q1,q2):
+def get_html(q1,q2,func1,q3):
     while True:
         try:
-            print("BBBB")
-            ht = q1.get(timeout=10)
-            print(ht[0])
-            p_mas.master_parse(ht[1],q2)
+            ht = q1.get()
+            if isinstance(ht,str):
+                q3.put(ht)
+            else:
+                func1(ht[1],q2)
+        except:
+            break
+def get_item(q,q1):
+    while True:
+        try:
+            it = q.get()
+            if isinstance(it,str):
+                q1.put(it)
+            else:
+                print(it)
         except:
             print("over")
+            break
+def new_task_test(q):
+    r = redis.Redis(host="localhost",port=6379)
+    while True:
+            a = q.get()
+            print("下一个连接连接",a)
+            r.sadd("youxinnew_master_tasks",a)
 if __name__ == '__main__':
     spider_name = "youxin"
     rq = Req.Req(spider_name)
@@ -41,20 +60,18 @@ if __name__ == '__main__':
     p_mas = Parse.Parse()
     html_queue = mp.Queue()
     item_queue = mp.Queue()
+    new_task_queue = mp.Queue()
     r1.init_task(create_start_urls())
-    tasks = r1.task_create_filter(10)
+    tasks = r1.task_create_filter(200)
     print(tasks)
     p1 = mp.Process(target=rq.cun,args=(tasks,html_queue))
+    p2 = mp.Process(target=get_html, args=(html_queue,item_queue,p_mas.master_parse,new_task_queue))
+    p3 = mp.Process(target=get_item, args=(item_queue,new_task_queue))
+    p4 = mp.Process(target=new_task_test,args=(new_task_queue,))
     p1.start()
-    p2 = mp.Process(target=A,args=(item_queue,))
     p2.start()
-    p3 = mp.Process(target=B,args=(html_queue,item_queue))
     p3.start()
-
-
-
-
-
+    p4.start()
 
 
 
