@@ -25,6 +25,15 @@ def A(q):
         except:
             print("获取完毕")
             break
+def B(q1,q2):
+    while True:
+        try:
+            print("BBBB")
+            ht = q1.get(timeout=10)
+            print(ht[0])
+            p_mas.master_parse(ht[1],q2)
+        except:
+            print("over")
 if __name__ == '__main__':
     spider_name = "youxin"
     rq = Req.Req(spider_name)
@@ -39,12 +48,9 @@ if __name__ == '__main__':
     p1.start()
     p2 = mp.Process(target=A,args=(item_queue,))
     p2.start()
-    while True:
-        try:
-            ht = html_queue.get(timeout=10)
-            p_mas.master_parse(ht[1],item_queue)
-        except:
-            print("over")
+    p3 = mp.Process(target=B,args=(html_queue,item_queue))
+    p3.start()
+
 
 
 
